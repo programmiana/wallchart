@@ -262,21 +262,25 @@ def workers_edit(worker_id):
     if request.method == "POST":
         Worker.update(
             {
-                Worker.email: request.form["email"],
-                Worker.phone: request.form["phone"],
+                Worker.email: (email if not (email:=request.form["email"]) else None),
+                Worker.phone: (phone if not (phone:=request.form["phone"]) else None),
                 Worker.notes: request.form["notes"],
                 Worker.organizing_department_id: Department.get(request.form["organizing_dept"] == Department.name).id,
             }
         ).where(Worker.id == worker_id).execute()
         flash("Worker data updated")
 
-    current_dept = Department.get(Worker.get(Worker.id == worker_id).department_id == Department.id).name
-    # Paul fix this!!
+    # Paul fix this!! I'm sure there's a more clever way
     dept_list = [dept.name for dept in Department.select().order_by(Department.name)]
-    # current_dept = "null"
-    # dept_list = [1, 2, 3]
     worker = Worker.get(Worker.id == worker_id)
-    return render_template("workers_edit.html", worker=worker, dept=current_dept, dept_list=dept_list)
+    current_dept = Department.get(worker.department_id == Department.id).name
+
+    try:
+        org_dept = Department.get(worker.organizing_department_id == Department.id).name
+    except Department.DoesNotExist:
+        org_dept = current_dept
+
+    return render_template("workers_edit.html", worker=worker, dept=current_dept, org_dept=org_dept, dept_list=dept_list)
 
 
 @app.route("/users/", methods=["GET", "POST"])
@@ -389,7 +393,7 @@ def parse_csv(csv_file_b):
                 name=row["Name"],
                 contract=row["Job Code"],
                 department_id=department.id,
-                organizing_dept_id=department.id,
+                organizing_department_id=department.id,
                 unit=row["Unit"],
             )
             worker.update(updated=date.today())
