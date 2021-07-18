@@ -11,6 +11,9 @@
 	<input name="email" type="text" value="{{ worker.email or "" }}" placeholder="worker@email.com" />
 	</p>
 	<p>
+	<label for="preferred_name">Preferred name</label>
+	<input name="preferred_name" type="text" value="{{ worker.preferred_name or worker.name }}" />
+	<p>
 	<label for="phone">Phone (only numbers)</label>
 	<input name="phone" type="text" value="{{ worker.phone or "" }}" placeholder="18081234567" />
 	</p>
