@@ -55,6 +55,7 @@ class BaseModel(Model):
 class Worker(BaseModel):
     name = CharField()
     preferred_name = CharField(null=True)
+    pronouns = CharField(null=True)
     email = CharField(unique=True, null=True)
     phone = IntegerField(unique=True, null=True)
     notes = TextField(null=True)
@@ -263,8 +264,10 @@ def workers_edit(worker_id):
     if request.method == "POST":
         Worker.update(
             {
-                Worker.email: (email if not (email:=request.form["email"]) else None),
-                Worker.phone: (phone if not (phone:=request.form["phone"]) else None),
+                Worker.preferred_name: request.form["preferred_name"],
+                Worker.pronouns: request.form["pronouns"],
+                Worker.email: (email if (email := request.form["email"].strip()) else None),
+                Worker.phone: (phone if (phone := request.form["phone"].strip()) else None),
                 Worker.notes: request.form["notes"],
                 Worker.organizing_department_id: Department.get(request.form["organizing_dept"] == Department.name).id,
             }
@@ -394,7 +397,6 @@ def parse_csv(csv_file_b):
                 name=row["Name"],
                 contract=row["Job Code"],
                 department_id=department.id,
-                organizing_department_id=department.id,
                 unit=row["Unit"],
             )
             worker.update(updated=date.today())
