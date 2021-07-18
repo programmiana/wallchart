@@ -60,7 +60,7 @@ class Worker(BaseModel):
     contract = CharField()
     unit = CharField()
     department_id = IntegerField()
-    organizing_department_id = IntegerField()
+    organizing_department_id = IntegerField(null=True)
     active = BooleanField(default=True)
     added = DateField(default=date.today)
     updated = DateField(default=date.today)
@@ -216,7 +216,7 @@ def workers(department_slug=None):
         department = Department.get(Department.slug == department_slug)
     else:
         department = Department.get(Department.id == session.get("department_id"))
-
+    flash('failing here')
     workers = (
         Worker.select(Worker, Participation)
         .join(Participation, JOIN.LEFT_OUTER, on=(Worker.id == Participation.worker))
@@ -266,12 +266,17 @@ def workers_edit(worker_id):
                 Worker.email: request.form["email"],
                 Worker.phone: request.form["phone"],
                 Worker.notes: request.form["notes"],
+                Worker.organizing_dept_id: request.form["organizing_dept"],
             }
         ).where(Worker.id == worker_id).execute()
         flash("Worker data updated")
 
+    current_dept = Department.get(Worker.get(Worker.id == worker_id).department_id == Department.id).name
+    dept_list = Department.select().order_by(Department.name)
+    # current_dept = "null"
+    # dept_list = [1, 2, 3]
     worker = Worker.get(Worker.id == worker_id)
-    return render_template("workers_edit.html", worker=worker)
+    return render_template("workers_edit.html", worker=worker, dept=current_dept, dept_list=dept_list)
 
 
 @app.route("/users/", methods=["GET", "POST"])
@@ -384,6 +389,7 @@ def parse_csv(csv_file_b):
                 name=row["Name"],
                 contract=row["Job Code"],
                 department_id=department.id,
+                organizing_dept_id=department.id,
                 unit=row["Unit"],
             )
             worker.update(updated=date.today())
