@@ -15,6 +15,10 @@
 	<input name="phone" type="text" value="{{ worker.phone or ""}}" placeholder="18081234567" />
 	</p>
 	<p>
+	<label for="dept">Department</label>
+	<input name="dept" type="text" value="{{dept}}" disabled />
+	</p>
+	<p>
 	<label for="organizing_dept">Organizing department</label>
 	<select name="organizing_dept" method="GET" action="/">
 		<option value="{{dept}}" selected>{{dept}}</option>

@@ -216,7 +216,6 @@ def workers(department_slug=None):
         department = Department.get(Department.slug == department_slug)
     else:
         department = Department.get(Department.id == session.get("department_id"))
-    flash('failing here')
     workers = (
         Worker.select(Worker, Participation)
         .join(Participation, JOIN.LEFT_OUTER, on=(Worker.id == Participation.worker))
@@ -266,13 +265,14 @@ def workers_edit(worker_id):
                 Worker.email: request.form["email"],
                 Worker.phone: request.form["phone"],
                 Worker.notes: request.form["notes"],
-                Worker.organizing_dept_id: request.form["organizing_dept"],
+                Worker.organizing_department_id: Department.get(request.form["organizing_dept"] == Department.name).id,
             }
         ).where(Worker.id == worker_id).execute()
         flash("Worker data updated")
 
     current_dept = Department.get(Worker.get(Worker.id == worker_id).department_id == Department.id).name
-    dept_list = Department.select().order_by(Department.name)
+    # Paul fix this!!
+    dept_list = [dept.name for dept in Department.select().order_by(Department.name)]
     # current_dept = "null"
     # dept_list = [1, 2, 3]
     worker = Worker.get(Worker.id == worker_id)
