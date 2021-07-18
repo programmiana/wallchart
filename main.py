@@ -60,6 +60,7 @@ class Worker(BaseModel):
     contract = CharField()
     unit = CharField()
     department_id = IntegerField()
+    organizing_department_id = IntegerField()
     active = BooleanField(default=True)
     added = DateField(default=date.today)
     updated = DateField(default=date.today)
